@@ -70,3 +70,8 @@ Adapters lies inside `infrastructure/persistence/in-memory`(just some values in 
 
 ## CQRS
 With the help of CQRS, we can separate Command Handlers(Write Operations) and Read Handler(Read Operations) from the database.
+
+## Events
+Two types of events `Domain Events`(states changes in domain, alarm-created.event.ts is a domain event in our case) and `Integration Events`(cross service communication)
+
+> Handling domain events is concern of application layer, hence alarm-created.event-handler.ts lies inside application layer, domain layer should only focus on domain-logic, not handling its events. Domain can't interact with repositories directly, but application layer can, in event-handlers we mostly talk to repositories to reflect extra changes to some aggregated/related models.

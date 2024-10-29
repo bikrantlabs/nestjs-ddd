@@ -5,6 +5,7 @@ import { AlarmFactory } from '../domain/factories/alarm.factory';
 import { PrismaModule } from 'src/prisma/prisma.module';
 import { CreateAlarmCommandHandler } from './commands/create-alarm.command-handler';
 import { GetAlarmsQueryHandler } from './queries/get-alarms.query-handler';
+import { AlarmCreatedEventHandler } from './event-handlers/alarm-created.event-handler';
 
 @Module({
   imports: [PrismaModule],
@@ -14,6 +15,7 @@ import { GetAlarmsQueryHandler } from './queries/get-alarms.query-handler';
     AlarmFactory,
     CreateAlarmCommandHandler,
     GetAlarmsQueryHandler,
+    AlarmCreatedEventHandler,
   ],
 })
 export class AlarmsModule {
