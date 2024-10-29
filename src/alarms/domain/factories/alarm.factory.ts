@@ -5,7 +5,7 @@ import { Alarm } from '../alarm';
 
 @Injectable()
 export class AlarmFactory {
-  create(name: string, severity: string) {
+  create(name: string, severity: string): Alarm {
     const alarmId = randomUUID();
     const alarmSeverity = new AlarmSeverity(
       severity as unknown as AlarmSeverity['value'],

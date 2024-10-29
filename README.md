@@ -67,3 +67,6 @@ Adapters lies inside `infrastructure/persistence/in-memory`(just some values in 
 > NOTE: Ports lies inside application layer. _Ports only define interfaces through which application interacts with external services_ The example of `Port` is `alarm.repository.ts` which only contains abstract class exposing the methods which are used to interact with database.
 
 > Adapters lies inside infrastructure layer, _and they are the implementation of those ports_ In this example we have an adapter `infrastructure/persistence/(in-memory | orm)/repositories/alarm.repositories.ts. Those repositories are concrete implementation of ports.
+
+## CQRS
+With the help of CQRS, we can separate Command Handlers(Write Operations) and Read Handler(Read Operations) from the database.
