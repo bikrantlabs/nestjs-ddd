@@ -9,14 +9,11 @@ services:
       POSTGRES_USER: postgres # Username for the database
       POSTGRES_PASSWORD: postgres # Password for the user
     ports:
-      - '5432:5432' # Expose port 5432
+      - 5432:5432 # Expose port 5432
 
   read-db:
     image: mongo:latest
-    container_name: mongodb_read_db
-    environment:
-      MONGO_INITDB_DATABASE: read_db # Name of the database to create
-      MONGO_INITDB_ROOT_USERNAME: mongo # Username for the database
-      MONGO_INITDB_ROOT_PASSWORD: mongo # Password for the user
     ports:
-      - '27017:27017' # Expose port for read_db
+      - 27017:27017
+    environment:
+      - MONGODB_DATABASE="vf-read-db"

@@ -12,6 +12,12 @@ export class MaterializedAlarmView {
   @Prop()
   severity: string;
 
+  @Prop({ type: Date })
+  trigerredAt: Date;
+
+  @Prop()
+  isAcknowledged: boolean;
+
   @Prop(
     raw([
       {

@@ -7,14 +7,10 @@ import { PrismaModule } from 'src/prisma/prisma.module';
 export class CoreModule {
   static forRoot(options: ApplicationBootstrapOptions) {
     const DB_URL = process.env.DATABASE_READ_URL;
-    console.log(`🔥 core.module.ts:10 ~ DB URL ~`, DB_URL);
-    const imports =
-      options.driver === 'orm'
-        ? [PrismaModule, MongooseModule.forRoot(DB_URL)]
-        : [];
+    console.log(`🔥 core.module.ts:10 ~ Data: ~`, DB_URL);
     return {
       module: CoreModule,
-      imports,
+      imports: [PrismaModule, MongooseModule.forRoot(DB_URL)],
     };
   }
 }
