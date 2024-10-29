@@ -59,5 +59,11 @@ We could also have `graphql` directory inside same presenters layer if we can to
 The `dtos` are kept inside presentation layer because they contain the shape of data sent/received through http request, so we can't move `dtos` to other folders.
 
 ## Ports and Adapters
+
 Basically used to define how a core system interacts with external components. External components includes databases, external apis, messaging systems, user interfaces, Logging/Monitoring Service, File Storage Solutions etc.
+
 Adapters lies inside `infrastructure/persistence/in-memory`(just some values in arrays/objects database adapter), `infrastructure/persistence/orm`(ORM database adapter)
+
+> NOTE: Ports lies inside application layer. _Ports only define interfaces through which application interacts with external services_ The example of `Port` is `alarm.repository.ts` which only contains abstract class exposing the methods which are used to interact with database.
+
+> Adapters lies inside infrastructure layer, _and they are the implementation of those ports_ In this example we have an adapter `infrastructure/persistence/(in-memory | orm)/repositories/alarm.repositories.ts. Those repositories are concrete implementation of ports.
