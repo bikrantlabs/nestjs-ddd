@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:latest
+    container_name: postgres_db
+    environment:
+      POSTGRES_DB: postgres # Name of the database to create
+      POSTGRES_USER: postgres # Username for the database
+      POSTGRES_PASSWORD: postgres # Password for the user
+    ports:
+      - '5432:5432' # Expose port 5432
+    volumes:
+      - postgres_data:/var/lib/postgresql/data # Persist data
+
+volumes:
+  postgres_data:

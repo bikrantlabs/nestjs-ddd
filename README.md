@@ -57,3 +57,7 @@ We might also have `views` directory inside same presenters layer, but since thi
 We could also have `graphql` directory inside same presenters layer if we can to expose graphql interfaces to users. 
 
 The `dtos` are kept inside presentation layer because they contain the shape of data sent/received through http request, so we can't move `dtos` to other folders.
+
+## Ports and Adapters
+Basically used to define how a core system interacts with external components. External components includes databases, external apis, messaging systems, user interfaces, Logging/Monitoring Service, File Storage Solutions etc.
+Adapters lies inside `infrastructure/persistence/in-memory`(just some values in arrays/objects database adapter), `infrastructure/persistence/orm`(ORM database adapter)
