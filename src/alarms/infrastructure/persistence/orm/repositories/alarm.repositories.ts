@@ -13,7 +13,11 @@ export class OrmAlarmRepository implements AlarmRepository {
    * This is done so that even if underlying ORM library changes, our application is not affected.
    */
   async findAll(): Promise<Alarm[]> {
-    const entities = await this.prismaService.alarm.findMany();
+    const entities = await this.prismaService.alarm.findMany({
+      include: {
+        items: true,
+      },
+    });
     return entities.map((entity) => AlarmMapper.toDomain(entity));
   }
 
@@ -24,7 +28,12 @@ export class OrmAlarmRepository implements AlarmRepository {
    */
   async save(alarm: Alarm): Promise<Alarm> {
     const entity = AlarmMapper.toPersistence(alarm);
-    const newEntity = await this.prismaService.alarm.create({ data: entity });
+    const newEntity = await this.prismaService.alarm.create({
+      data: entity,
+      include: {
+        items: true,
+      },
+    });
     return AlarmMapper.toDomain(newEntity);
   }
 }

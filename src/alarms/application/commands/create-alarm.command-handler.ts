@@ -21,7 +21,12 @@ export class CreateAlarmCommandHandler
     this.logger.debug(
       `Processing "CreateAlarmCommand" : ${JSON.stringify(command)}`,
     );
-    const alarm = this.alarmFactory.create(command.name, command.severity);
+    const alarm = this.alarmFactory.create(
+      command.name,
+      command.severity,
+      command.trigerredAt,
+      command.items,
+    );
 
     // FIXME: Domain events should be dispatched from aggregate root, inside domain layer
     this.eventBus.publish(new AlarmCreatedEvent(alarm));

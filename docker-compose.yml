@@ -1,17 +1,22 @@
 version: '3.8'
 
 services:
-  db:
+  write-db:
     image: postgres:latest
-    container_name: postgres_db
+    container_name: postgres_write_db
     environment:
-      POSTGRES_DB: postgres # Name of the database to create
+      POSTGRES_DB: write_db # Name of the database to create
       POSTGRES_USER: postgres # Username for the database
       POSTGRES_PASSWORD: postgres # Password for the user
     ports:
       - '5432:5432' # Expose port 5432
-    volumes:
-      - postgres_data:/var/lib/postgresql/data # Persist data
 
-volumes:
-  postgres_data:
+  read-db:
+    image: mongo:latest
+    container_name: mongodb_read_db
+    environment:
+      MONGO_INITDB_DATABASE: read_db # Name of the database to create
+      MONGO_INITDB_ROOT_USERNAME: mongo # Username for the database
+      MONGO_INITDB_ROOT_PASSWORD: mongo # Password for the user
+    ports:
+      - '27017:27017' # Expose port for read_db

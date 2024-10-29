@@ -4,11 +4,14 @@ import { Alarm as DomainAlarm } from 'src/alarms/domain/alarm';
 
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AlarmMapper } from '../mappers/alarm.mapper';
-import { Alarm as AlarmEntity } from '@prisma/client';
+import { Alarm as AlarmEntity, AlarmItemEntity } from '@prisma/client';
 
 @Injectable()
 export class InMemoryAlarmRepository implements AlarmRepository {
-  private readonly alarms = new Map<string, AlarmEntity>();
+  private readonly alarms = new Map<
+    string,
+    AlarmEntity & { items: Array<AlarmItemEntity> }
+  >();
   constructor() {}
   /**
    * We are using domain models throughout our application, but ORM libraries returns entities.

@@ -16,6 +16,8 @@ export class AlarmsController {
     const createAlarmCommand = new CreateAlarmCommand(
       createAlarmDto.name,
       createAlarmDto.severity,
+      createAlarmDto.trigerredAt,
+      createAlarmDto.items,
     );
     return this.alarmsService.create(createAlarmCommand);
   }
