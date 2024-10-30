@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  OnApplicationBootstrap,
-  OnApplicationShutdown,
-} from '@nestjs/common';
+import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { MongoEventStore } from '../mongo-event-store';
 import { EventBus, IEvent, IEventPublisher } from '@nestjs/cqrs';
 import { EventSerializer } from '../serializers/event.serializer';

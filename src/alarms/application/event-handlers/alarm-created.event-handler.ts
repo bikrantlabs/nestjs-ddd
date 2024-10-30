@@ -2,17 +2,19 @@ import { Logger } from '@nestjs/common';
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { AlarmCreatedEvent } from 'src/alarms/domain/events/alarm-created.event';
 import { UpsertMaterializedAlarmsRepository } from '../ports/upsert-materialized-alarms.repository';
+import { SerializedEventPayload } from 'src/shared/domain/interfaces/serializable-event';
 
 @EventsHandler(AlarmCreatedEvent)
+// Our Event Handlers receive Deserialized Events, not Domain Event
 export class AlarmCreatedEventHandler
-  implements IEventHandler<AlarmCreatedEvent>
+  implements IEventHandler<SerializedEventPayload<AlarmCreatedEvent>>
 {
   private readonly logger = new Logger(AlarmCreatedEventHandler.name);
 
   constructor(
     private readonly upsertMaterializedAlarmsRepository: UpsertMaterializedAlarmsRepository,
   ) {}
-  async handle(event: AlarmCreatedEvent) {
+  async handle(event: SerializedEventPayload<AlarmCreatedEvent>) {
     this.logger.debug(`Alarm created event handler: ${JSON.stringify(event)}`);
 
     /**
@@ -26,7 +28,7 @@ export class AlarmCreatedEventHandler
       id: event.alarm.id,
       name: event.alarm.name,
       severity: event.alarm.severity.value,
-      trigerredAt: event.alarm.trigerredAt,
+      trigerredAt: new Date(event.alarm.trigerredAt),
       items: event.alarm.items,
     });
   }

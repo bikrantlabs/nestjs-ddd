@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { VersionedAggregateRoot } from 'src/shared/domain/aggregate-root';
 import { SerializableEvent } from 'src/shared/domain/interfaces/serializable-event';
 

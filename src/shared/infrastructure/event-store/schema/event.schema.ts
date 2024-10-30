@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { SchemaTypes } from 'mongoose';
+import { Document, HydratedDocument, SchemaTypes } from 'mongoose';
 
 @Schema({
   timestamps: {
@@ -22,6 +22,6 @@ export class Event {
   })
   data: Record<string, any>;
 }
-
+export type EventDocument = HydratedDocument<Event>;
 export const EventSchema = SchemaFactory.createForClass(Event);
 EventSchema.index({ streamId: 1, position: 1 }, { unique: true });

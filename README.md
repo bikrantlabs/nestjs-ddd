@@ -83,3 +83,51 @@ Event store is just a database which stores the data emitted by any event. Then 
 - We need to declare `EventSchema` schema that represents the event stored in database(we can use any database).
 - We need serializers/deserializers to convert events to/from json.
 - Class(like a repository) that will be responsible for storing/retrieving events from database via `EventSchema`  
+
+> How is `alarm.commit()` from `create-alarm.command-handler.ts` automatically executing `MongoEventStore`?
+It's because the `onApplicationBootstrap` method in `shared/infrastructure/event-store-publisher.ts` sets the publisher to `this`, meaning that same class. So whenever the event is emitted through `EventBus` (which is used by `AggregateRoot`) will be handled by `EventStorePublisher`. The `commit()` method of `AggregateRoot` automatically does `eventBus.publish(this.getUncommitedEvents())`. And inside that publisher, we are using `eventStore.persist()` to push data to `eventStore`
+
+> If you want to control which publisher handles different events, we can _Use a Custom EventBus with Multiple Publishers_
+
+## Event Bridge
+Till now, we published the event to event bus, and the `MongoEventStore.publish()` method listens to that event, and pushes the event data in our `EventStore`(MongoDB database). But those event data are not reflected in our main `Read Database`(Yet another MongoDB database). 
+
+Now the `EventBridge` will subscribe to our `EventModel` in database (only listen to changes in one model, not the whole database) using `this.eventStore.watch().on('change',...)` method, so whenever there is **update**, **insertion**, **creation**, **deletion** in our `EventStore`, the `EventBridge.handleEventStoreChange` will take the event data, deserialize it into instance of `SerializableEvent` class, and add the event to `EventBus Queue`
+
+> Note: `EventBus Queue(MongoEventStore.persist)` is actively pushing the events into the main Read Database.
+
+> We have successfully implemented the push strategy with collection watchers by using event bridge
+
+## Serializers and Deserializers
+We need serializers to convert our objects/class to plain javascript object, so that it can be saved to database (event store).
+> Note: serializedEvent.type is set to event.constructor?.name, which will be inferred from `alarm.apply(new AlarmCreatedEvent(alarm), { skipHandler: true });` inside `alarm.factory.ts`. See Flow below for more details. This is important because deserializer uses same event.type to create the Class instance which is necessary for `@EventHandler(AlarmCreatedEvent)` inside `alarm-created.event-handler.ts` to execute.
+
+And we need deserializers to convert plain javascript object obtained/read from event-store into a instance of the Event Class, so that we can push the event to the `event bus`. Event bus expects the instance of event class, not just a plain js object.
+
+# Creating a Alarm through POST Request FLOW
+
+1. `alarms.controller.ts` is exposing `create` route which expects `CreateAlarmDto`
+
+2. We are converting those `DTOs` into `CreateAlarmCommand` and passing it to `alarms.service.ts`
+
+3. In `alarms.service.ts`'s `create` method, we are executing `this.commandBus.execute(createAlarmCommand)`
+
+4. The `create-alarm.command-handler.ts` is listening to this `CreateAlarmCommand`(cqrs is responsible for listening to commands).
+
+5. Inside `create-alarm.command-handler.ts`, we are converting `CrateAlarmCommand` to our `Domain Entity (domain/alarm.ts)`, merging it with `event publisher` and invoking `commit()` method provided by `AggregareRoot`(cqrs). We are basically `publishing`(not adding to event bus, it's different) the event.
+
+6. The `event-store.publisher.ts:persist()` method is automatically invoked because of `this.eventBus.publisher = this`(eventBus.publisher is not eventBus.subject.next) inside `onApplicationBoostrap` method.
+
+7. Then `event-store.publisher.ts:publish()` method converts the `deserialized event(domain class)` into `serialized event(object)` and invokes `mongo-event-store.ts:publish()`, which pushes event data in our EventStore Database.
+
+7. The `event-bridge.ts` is actively listening to changes in `EventModel` in event store db, and on change, we are changing `serialized (plain object)` (the `eventModel.watch().on("change")` automcatically receives the JSON data that was recently modified/added into collection) into `deserialized (domain class)` and `event-bridge.ts:handleStoreEventChange()` pushes it to the `EventBus` using `this.eventBus.subject$.next(eventInstance.data)` (since EventBus expects an instance of Class into its stream, eventInstance.data is a class, on our case with the name "AlarmCreatedEvent").  
+
+8. Whenever the event is pushed to eventBus stream with `eventInstance.data` (that _data_ is deserialized _AlarmCreatedEvent_), the `alarm-created.event-handler.ts` method runs and now the actual **Read database** is updated from there.
+
+# How does `this.eventBus.subject$.next(eventInstance.data)` automatically triggers `alarm-created.event-handler`?
+
+Answer: First inside `create-alarm.command-handler.ts` we are creating alarm entity by `this.alarmFactory.create`.
+Inside `alarmFactory.create`, we are doing `alarm.apply(new AlarmCreatedEvent(alarm), { skipHandler: true })`, we are binding the `AlarmCreatedEvent` to that samr `alarm` instance.
+Then back to `create-alarm.command-handler.ts` is publishing same alarm to `eventbus`, which runs `event-store.publisher.ts:publish`. `serializedEvent.type` is set to `event.constructor?.name`, which will be inferred from `alarm.apply(new AlarmCreatedEvent(alarm), { skipHandler: true });` inside `alarm.factory.ts`. See Flow below for more details. This is important because deserializer uses same event.type to create the Class instance which is necessary for `@EventHandler(AlarmCreatedEvent)` inside `alarm-created.event-handler.ts` to execute.
+
+> Important Note: Inside `alarm.factory.ts` , `alarm.apply(new AlarmCreatedEvent(alarm), { skipHandler: true })` is crucial so that `@EventHandler` will detect the event, Serialize plays important role to create `type: event.constructor?.name` and deserializer to build the same class from plain js object.
