@@ -75,3 +75,11 @@ With the help of CQRS, we can separate Command Handlers(Write Operations) and Re
 Two types of events `Domain Events`(states changes in domain, alarm-created.event.ts is a domain event in our case) and `Integration Events`(cross service communication)
 
 > Handling domain events is concern of application layer, hence alarm-created.event-handler.ts lies inside application layer, domain layer should only focus on domain-logic, not handling its events. Domain can't interact with repositories directly, but application layer can, in event-handlers we mostly talk to repositories to reflect extra changes to some aggregated/related models.
+
+## Event Store
+Whenever any state changes in the application (database written), we need to update the read database as well. But your current application pattern is Event-Driven, Any state changes or database write will emit an event with the data, and the event-store should listen/subscribe to those events.
+
+Event store is just a database which stores the data emitted by any event. Then we need to serialize this raw json data and store it in our read database. Whenever any kind of "READ" event is emitted, the event-store fetches the data from read database, and returns the data. For implementing event store we have created shared/ module. We will need:
+- We need to declare `EventSchema` schema that represents the event stored in database(we can use any database).
+- We need serializers/deserializers to convert events to/from json.
+- Class(like a repository) that will be responsible for storing/retrieving events from database via `EventSchema`  

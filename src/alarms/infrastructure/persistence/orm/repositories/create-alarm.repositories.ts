@@ -3,17 +3,10 @@ import { CreateAlarmRepository } from 'src/alarms/application/ports/create-alarm
 import { Alarm } from 'src/alarms/domain/alarm';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AlarmMapper } from '../mappers/alarm.mapper';
-import { FindAlarmsRepository } from 'src/alarms/application/ports/find-alarms.repository';
-import { UpsertMaterializedAlarmsRepository } from 'src/alarms/application/ports/upsert-materialized-alarms.repository';
 
 @Injectable()
 export class OrmCreateAlarmRepository implements CreateAlarmRepository {
   constructor(private readonly prismaService: PrismaService) {}
-  /**
-   * We are using domain models throughout our application, but ORM libraries returns entities.
-   * So we convert them back to domain models using mappers.
-   * This is done so that even if underlying ORM library changes, our application is not affected.
-   */
 
   /**
    * We are using domain models throughout our application, but ORM libraries needs normal object to save in database.
